@@ -1,0 +1,174 @@
+Here are your Java OOP notes for these five topics, with short theory and examples.
+
+# 1. Multiple Interfaces
+
+Definition: In Java, one class can implement multiple interfaces using the `implements` keyword. This allows a class to provide different capabilities.
+
+```
+interface Printable {
+    void print();
+}
+
+interface Scannable {
+    void scan();
+}
+
+class Printer implements Printable, Scannable {
+
+    @Override
+    public void print() {
+        System.out.println("Printing...");
+    }
+
+    @Override
+    public void scan() {
+        System.out.println("Scanning...");
+    }
+}
+```
+
+Usage:
+
+```
+Printer p = new Printer();
+p.print();
+p.scan();
+```
+
+Remember: A class can extend only one class but implement multiple interfaces.
+
+# 2. Abstract Class
+
+Definition: An abstract class is declared using the `abstract` keyword. It can contain abstract methods, concrete methods, constructors, and instance variables.
+
+```
+abstract class Animal {
+
+    // Abstract method
+    abstract void sound();
+
+    // Concrete method
+    void sleep() {
+        System.out.println("Animal is sleeping");
+    }
+}
+
+class Dog extends Animal {
+
+    @Override
+    void sound() {
+        System.out.println("Dog barks");
+    }
+}
+```
+
+Usage:
+
+```
+Animal a = new Dog();
+a.sound();
+a.sleep();
+```
+
+Remember: You cannot instantiate an abstract class directly using `new Animal()`.
+
+# 3. Default Interface Method
+
+Definition: A `default` method is an interface method with a body. Implementing classes inherit its implementation and can override it.
+
+```
+interface Vehicle {
+
+    void start();
+
+    // Default method
+    default void stop() {
+        System.out.println("Vehicle stops");
+    }
+}
+
+class Car implements Vehicle {
+
+    @Override
+    public void start() {
+        System.out.println("Car starts");
+    }
+}
+```
+
+Usage:
+
+```
+Vehicle v = new Car();
+v.start();
+v.stop();
+```
+
+Output:
+
+```
+Car starts
+Vehicle stops
+```
+
+Remember: A class must implement the abstract `start()` method, but it does not need to override the default `stop()` method.
+
+# 4. Interface Constants
+
+Definition: Every field declared in an interface is implicitly `public static final`. It is a constant, not an ordinary instance variable.
+
+```
+interface Vehicle {
+    int MAX_SPEED = 120;
+}
+```
+
+This is equivalent to:
+
+```
+public static final int MAX_SPEED = 120;
+```
+
+Access it using the interface name:
+
+```
+System.out.println(Vehicle.MAX_SPEED);
+```
+
+Output:
+
+```
+120
+```
+
+This is invalid:
+
+```
+Vehicle.MAX_SPEED = 150; // Compilation error
+```
+
+Remember:
+
+- `public` — accessible wherever permitted by the interface's visibility.
+- `static` — belongs to the interface itself.
+- `final` — cannot be reassigned after initialization.
+
+# 5. Design Comparison
+
+| Feature              | Abstract class                 | Interface                                            |
+| -------------------- | ------------------------------ | ---------------------------------------------------- |
+| Keyword              | `abstract class`               | `interface`                                          |
+| Used with            | `extends`                      | `implements`                                         |
+| Abstract methods     | Yes                            | Yes                                                  |
+| Methods with bodies  | Yes                            | Yes, using `default`, `static`, or `private` methods |
+| Constructors         | Yes                            | No                                                   |
+| Instance variables   | Yes                            | No ordinary instance fields                          |
+| Constants            | Can declare them               | Fields are implicitly `public static final`          |
+| Multiple inheritance | A class extends only one class | A class can implement multiple interfaces            |
+
+## When should you use each?
+
+- Abstract class: When related classes share common state or implementation. Example: `Employee`, `FullTimeEmployee`, and `PartTimeEmployee`.
+- Interface: When classes need to follow a common contract or support a capability. Example: `Printable`, `Scannable`, and `Faxable`.
+- Default interface method: When you want to provide reusable behavior that implementing classes can inherit or override.
+- Interface constants: When you need a constant associated with an interface.
