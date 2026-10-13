@@ -8,7 +8,11 @@ package OOP.Abstraction;
         void scan();
     }
 
-    class Printer implements Printable, Scannable{
+    interface Faxable{
+        void fax();
+    }
+
+class Printer implements Printable, Scannable, Faxable{
         @Override
         public void print(){
             System.out.println("Printing document...");
@@ -18,7 +22,16 @@ package OOP.Abstraction;
         public void scan(){
             System.out.println("Scanning document...");
         }
+
+        @Override
+    public void fax(){
+            System.out.println("Sending fax...");
+
+        }
     }
+
+
+
 
 
 public class MultipleInterfaces {
@@ -27,5 +40,6 @@ public class MultipleInterfaces {
 
         p1.print();
         p1.scan();
+        p1.fax();
     }
 }
