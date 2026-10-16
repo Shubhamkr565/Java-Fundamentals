@@ -1,0 +1,590 @@
+# Java Exception Handling — Complete Notes with Diagrams
+
+Java Fundamentals & OOP · Theory · Diagrams · Programs · Interview Preparation
+
+## 1. What is Exception Handling?
+
+Exception Handling is a mechanism in Java used to detect and handle exceptional situations so a program can respond appropriately instead of terminating unexpectedly.
+
+For example, dividing an integer by zero causes an `ArithmeticException`.
+
+```
+public class Main {
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 0;
+
+        int result = a / b; // ArithmeticException
+
+        System.out.println(result);
+        System.out.println("Program continues...");
+    }
+}
+```
+
+The exception is uncaught, so the final print statement will not execute.
+
+With exception handling:
+
+```
+public class Main {
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 0;
+
+        try {
+            int result = a / b;
+            System.out.println(result);
+        } catch (ArithmeticException e) {
+            System.out.println("Cannot divide by zero");
+        }
+
+        System.out.println("Program continues...");
+    }
+}
+```
+
+Output:
+
+```
+Cannot divide by zero
+Program continues...
+```
+
+Main purpose: Handle errors appropriately, maintain program flow where possible, and provide meaningful error messages.
+
+## 2. Exception hierarchy in Java
+
+Java represents exceptions and errors using classes. The root of this hierarchy is `Throwable`.
+
+Object
+
+Throwable
+
+Root of Java's throwable types
+
+Error
+
+Serious JVM or system problems
+
+`OutOfMemoryError`
+
+`StackOverflowError`
+
+Exception
+
+Exceptional application conditions
+
+`IOException`
+
+`RuntimeException`
+
+RuntimeException and its subclasses
+
+`ArithmeticException` · `NullPointerException` · `IllegalArgumentException` · `IndexOutOfBoundsException`
+
+Important distinctions:
+
+- `Throwable` is the superclass of `Exception` and `Error`.
+- `Exception` represents conditions applications may want to handle.
+- `RuntimeException` is a subclass of `Exception`.
+- `Error` represents serious problems that applications generally should not attempt to handle routinely.
+
+## 3. Types of exceptions
+
+Java exception handling is commonly studied through checked exceptions, unchecked exceptions, and errors.
+
+| Type                 | Checked by compiler?               | Examples                                                                  |
+| -------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| Checked exceptions   | Yes                                | `IOException`, `SQLException`, `ClassNotFoundException`                   |
+| Unchecked exceptions | No requirement to catch or declare | `ArithmeticException`, `NullPointerException`, `IllegalArgumentException` |
+| Errors               | Not required to catch or declare   | `OutOfMemoryError`, `StackOverflowError`                                  |
+
+### A. Checked exceptions
+
+The compiler requires you to catch checked exceptions or declare them with `throws`.
+
+```
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CheckedExample {
+    public static void main(String[] args) {
+        try {
+            FileReader file = new FileReader("data.txt");
+            file.close();
+        } catch (IOException e) {
+            System.out.println("File operation failed");
+        }
+    }
+}
+```
+
+If the file doesn't exist or cannot be opened, a file-related exception may occur.
+
+### B. Unchecked exceptions
+
+These are subclasses of `RuntimeException`. The compiler doesn't force you to catch or declare them.
+
+```
+int a = 10;
+int b = 0;
+
+System.out.println(a / b); // ArithmeticException
+```
+
+### C. Errors
+
+Errors often represent resource exhaustion or serious runtime problems.
+
+```
+// Example of a possible StackOverflowError
+public static void repeat() {
+    repeat();
+}
+```
+
+Don't run this example without understanding the consequences. Unbounded recursion can exhaust the call stack.
+
+## 4. The five main keywords
+
+Java provides five important keywords for exception handling.
+
+`try`
+
+Contains code that may throw an exception.
+
+`catch`
+
+Handles an exception matching its declared type.
+
+`finally`
+
+Normally runs when control leaves the `try`/`catch` construct; commonly used for cleanup.
+
+`throw`
+
+Explicitly throws an exception object.
+
+`throws`
+
+Declares exception types that a method may pass to its caller.
+
+### 4.1 `try` and `catch`
+
+Syntax:
+
+```
+try {
+    // Risky code
+} catch (ExceptionType e) {
+    // Handling code
+}
+```
+
+Example:
+
+```
+try {
+    int result = 100 / 0;
+} catch (ArithmeticException e) {
+    System.out.println("Invalid division");
+}
+```
+
+When an exception occurs inside the `try` block, Java looks for a matching handler. It skips the remaining statements in that `try` block and executes the matching `catch`.
+
+### 4.2 Multiple `catch` blocks
+
+One `try` block can have multiple `catch` blocks for different exception types.
+
+```
+int[] nums = {10, 20, 30};
+
+try {
+    System.out.println(nums[5]);
+} catch (ArithmeticException e) {
+    System.out.println("Arithmetic error");
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("Invalid array index");
+}
+```
+
+Output:
+
+```
+Invalid array index
+```
+
+Important: Java executes the first matching `catch` block. A child exception type must not be placed after a catch that already catches its parent type, because the child catch would be unreachable.
+
+### 4.3 `finally`
+
+The `finally` block is useful for cleanup operations.
+
+```
+try {
+    System.out.println("Inside try");
+} catch (Exception e) {
+    System.out.println("Exception handled");
+} finally {
+    System.out.println("Finally executed");
+}
+```
+
+Output:
+
+```
+Inside try
+Finally executed
+```
+
+The `finally` block normally runs whether an exception occurs or not. It may not execute if the JVM terminates abruptly, such as through `System.exit()`.
+
+For managing files and other closeable resources, Java's try-with-resources is often preferable.
+
+### 4.4 `throw`
+
+Use `throw` when you want to throw an exception explicitly.
+
+```
+int age = 16;
+
+if (age < 18) {
+    throw new IllegalArgumentException(
+        "Age must be 18 or above"
+    );
+}
+```
+
+Here, Java throws an `IllegalArgumentException` when the condition is true.
+
+### 4.5 `throws`
+
+Use `throws` in a method declaration to declare an exception that may be passed to the caller.
+
+```
+import java.io.IOException;
+
+public static void readFile() throws IOException {
+    // File-reading code
+}
+```
+
+For checked exceptions, the caller must handle or further declare the exception.
+
+Remember: `throw` throws an exception; `throws` declares possible exceptions.
+
+## 5. `throw` vs `throws` — complete comparison
+
+| Feature     | `throw`                                   | `throws`                             |
+| ----------- | ----------------------------------------- | ------------------------------------ |
+| Purpose     | Throws an exception                       | Declares possible exceptions         |
+| Location    | Inside a method or block                  | In a method declaration              |
+| Followed by | An exception object                       | Exception class names                |
+| Number      | Throws one exception object per statement | Can declare multiple exception types |
+| Example     | `throw new IOException();`                | `readFile() throws IOException`      |
+
+Example using both:
+
+```
+public static void checkAge(int age)
+        throws IllegalArgumentException {
+
+    if (age < 18) {
+        throw new IllegalArgumentException("Underage");
+    }
+
+    System.out.println("Eligible");
+}
+```
+
+Here, `throw` actually throws the exception. `throws` declares the exception in the signature, although declaring `IllegalArgumentException` is optional because it is unchecked.
+
+## 6. Exception flow diagram
+
+This is the typical flow when an exception is thrown and handled.
+
+\#chatgpt-mermaid-\_r_1m6\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_1m6\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1m6\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1m6\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_1m6\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_1m6\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_1m6\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_1m6\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_1m6\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_1m6\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m6\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m6\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_1m6\_ p{margin:0;}#chatgpt-mermaid-\_r_1m6\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_1m6\_ .label text,#chatgpt-mermaid-\_r_1m6\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ .node rect,#chatgpt-mermaid-\_r_1m6\_ .node circle,#chatgpt-mermaid-\_r_1m6\_ .node ellipse,#chatgpt-mermaid-\_r_1m6\_ .node polygon,#chatgpt-mermaid-\_r_1m6\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .rough-node .label text,#chatgpt-mermaid-\_r_1m6\_ .node .label text,#chatgpt-mermaid-\_r_1m6\_ .image-shape .label,#chatgpt-mermaid-\_r_1m6\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_1m6\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .rough-node .label,#chatgpt-mermaid-\_r_1m6\_ .node .label,#chatgpt-mermaid-\_r_1m6\_ .image-shape .label,#chatgpt-mermaid-\_r_1m6\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_1m6\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_1m6\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m6\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m6\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_1m6\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_1m6\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1m6\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1m6\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_1m6\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_1m6\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m6\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_1m6\_ .icon-shape,#chatgpt-mermaid-\_r_1m6\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_1m6\_ .icon-shape p,#chatgpt-mermaid-\_r_1m6\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_1m6\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_1m6\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1m6\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_1m6\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_1m6\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_1m6\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_1m6\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_1m6\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_1m6\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m6\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_1m6\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m6\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_1m6\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_1m6\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_1m6\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_1m6\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .node rect,#chatgpt-mermaid-\_r_1m6\_ .node circle,#chatgpt-mermaid-\_r_1m6\_ .node ellipse,#chatgpt-mermaid-\_r_1m6\_ .node polygon,#chatgpt-mermaid-\_r_1m6\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_1m6\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_1m6\_ .node.mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_1m6\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_1m6\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m6\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}StartEnter try blockException occurs?Execute remaining trystatementsSearch for matching catchMatching catch found?Execute catch blockPropagate exception to callerExecute finally if presentContinue programCaller or uncaught exceptionEndNoYesYesNo
+
+When an exception occurs, the rest of the current `try` block is skipped. If a matching `catch` is found, it handles the exception. Otherwise, the exception propagates up the call stack until a matching handler is found or the thread terminates due to an uncaught exception.
+
+## 7. Exception propagation
+
+Exception propagation means an exception moves up through the call stack when a method doesn't handle it.
+
+Example:
+
+```
+public class PropagationExample {
+
+    static void method3() {
+        int result = 10 / 0;
+    }
+
+    static void method2() {
+        method3();
+    }
+
+    static void method1() {
+        method2();
+    }
+
+    public static void main(String[] args) {
+        try {
+            method1();
+        } catch (ArithmeticException e) {
+            System.out.println("Exception handled in main");
+        }
+    }
+}
+```
+
+Output:
+
+```
+Exception handled in main
+```
+
+Call flow:
+
+`main()` calls `method1()`
+
+`method1()` calls `method2()`
+
+`method2()` calls `method3()`
+
+`method3()` throws `ArithmeticException`
+
+Exception propagates to `main()`
+
+The matching catch handles it.
+
+Exception propagation does not require every method to contain a `try-catch`. Unchecked exceptions can propagate automatically. Checked exceptions must be caught or declared at each relevant boundary.
+
+## 8. Custom exceptions
+
+A custom exception is an exception class that you create to represent a specific condition in your application.
+
+For example, a bank application might need to report insufficient balance.
+
+### Example: Custom `InsufficientBalanceException`
+
+```
+package OOP.ExceptionHandling;
+
+// Custom checked exception
+class InsufficientBalanceException extends Exception {
+
+    public InsufficientBalanceException(String message) {
+        super(message);
+    }
+}
+
+class BankAccount {
+
+    private double balance = 5000;
+
+    public void withdraw(double amount)
+            throws InsufficientBalanceException {
+
+        if (amount > balance) {
+            throw new InsufficientBalanceException(
+                "Insufficient balance!"
+            );
+        }
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException(
+                "Amount must be positive"
+            );
+        }
+
+        balance -= amount;
+        System.out.println("Remaining balance: " + balance);
+    }
+}
+
+public class CustomExceptionDemo {
+
+    public static void main(String[] args) {
+
+        BankAccount account = new BankAccount();
+
+        try {
+            account.withdraw(7000);
+        } catch (InsufficientBalanceException e) {
+            System.out.println("Error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid amount: " + e.getMessage());
+        }
+    }
+}
+```
+
+Output:
+
+```
+Error: Insufficient balance!
+```
+
+### How does it work?
+
+- `extends Exception` creates a checked custom exception.
+- `super(message)` passes the message to the parent exception class.
+- `throw new InsufficientBalanceException(...)` creates and throws the exception.
+- `throws InsufficientBalanceException` declares the checked exception in the method signature.
+- `catch` handles the exception in `main()`.
+
+If you want a custom unchecked exception, extend `RuntimeException` instead. Such an exception does not have to be caught or declared.
+
+## 9. Try-with-resources
+
+Try-with-resources automatically closes resources that implement `AutoCloseable`, including `FileReader`.
+
+This is generally safer than manually calling `close()` in a `finally` block.
+
+```
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class TryWithResourcesDemo {
+
+    public static void main(String[] args) {
+
+        try (BufferedReader reader =
+                     new BufferedReader(new FileReader("data.txt"))) {
+
+            System.out.println(reader.readLine());
+
+        } catch (IOException e) {
+            System.out.println("File error: " + e.getMessage());
+        }
+    }
+}
+```
+
+The reader closes automatically when execution leaves the `try` block, even when an exception occurs.
+
+## 10. Common Java exceptions
+
+| Exception                         | Common cause                                          |
+| --------------------------------- | ----------------------------------------------------- |
+| `ArithmeticException`             | Integer division by zero                              |
+| `NullPointerException`            | Calling a method or accessing a member through `null` |
+| `ArrayIndexOutOfBoundsException`  | Accessing an invalid array index                      |
+| `StringIndexOutOfBoundsException` | Accessing an invalid string index                     |
+| `NumberFormatException`           | Converting an invalid string to a number              |
+| `IllegalArgumentException`        | Passing an invalid argument                           |
+| `ClassCastException`              | Performing an invalid runtime reference cast          |
+| `IOException`                     | File or input/output operation failure                |
+| `FileNotFoundException`           | A requested file cannot be found or opened            |
+| `SQLException`                    | Database operation failure                            |
+
+### Example: `NullPointerException`
+
+```
+String name = null;
+System.out.println(name.length());
+```
+
+This throws `NullPointerException` because `name` doesn't refer to a `String` object.
+
+A better approach is to validate the reference or use a suitable null-handling strategy rather than catching every possible `NullPointerException`.
+
+## 11. Important rules and best practices
+
+1. Catch specific exceptions. Prefer `catch (IOException e)` over a broad `catch (Exception e)` when the expected failure is an I/O problem.
+2. Don't swallow exceptions. Avoid empty `catch` blocks that hide failures.
+3. Use meaningful messages. Explain what failed without exposing sensitive data.
+4. Use `finally` or try-with-resources for cleanup. Prefer try-with-resources for files, streams, and similar closeable resources.
+5. Don't use exceptions for normal control flow. Validate expected conditions directly when practical.
+6. Catch exceptions at the appropriate level. Handle an error where you can recover, report it, or add useful context.
+7. Preserve the cause when wrapping an exception. This helps debugging.
+8. Avoid catching `Error` for routine application recovery. Errors usually indicate serious conditions.
+
+### Common mistakes
+
+| Mistake                                                       | Why it's a problem                    |
+| ------------------------------------------------------------- | ------------------------------------- |
+| Catching a parent exception before its child                  | Can make the child catch unreachable  |
+| Writing code after an unconditional `throw` in the same block | The code may be unreachable           |
+| Declaring `throws` but assuming it handles the exception      | `throws` does not handle anything     |
+| Using `throw` without an exception object                     | The syntax is invalid                 |
+| Forgetting to handle or declare a checked exception           | Causes a compilation error            |
+| Assuming `finally` always runs under every circumstance       | Abrupt JVM termination can prevent it |
+
+## 12. Interview questions and answers
+
+### Q1. What is exception handling in Java?
+
+Exception handling is a mechanism for detecting and handling exceptional conditions so a program can respond appropriately and continue where possible.
+
+### Q2. What is the difference between an exception and an error?
+
+An exception represents an exceptional condition an application may handle. An error generally represents a serious JVM or system problem that applications aren't expected to handle routinely.
+
+### Q3. Can we use `try` without `catch`?
+
+Yes. A `try` can be used with `finally` without a `catch`, or as a try-with-resources statement with or without a `catch` or `finally`.
+
+### Q4. Can we have multiple `catch` blocks?
+
+Yes. Each can handle a different exception type, provided the catch blocks are reachable and correctly ordered.
+
+### Q5. Can we write `try` inside another `try`?
+
+Yes. This is called a nested `try` block. Each block can have its own exception handling.
+
+### Q6. Is `finally` always executed?
+
+No. It normally executes when control leaves the `try`/`catch` construct, but abrupt JVM termination or certain other circumstances can prevent it.
+
+### Q7. Can we throw a checked exception using `throw`?
+
+Yes, but the checked exception must be caught or declared with `throws` where required.
+
+### Q8. Can we use `throw` and `throws` together?
+
+Yes. A method can declare an exception using `throws` and throw an exception object using `throw`.
+
+### Q9. What is a custom exception?
+
+A custom exception is a programmer-defined exception class used to represent an application-specific condition.
+
+### Q10. What is exception propagation?
+
+It is the process through which an uncaught exception moves up the call stack until a matching handler is found or the thread terminates.
+
+## 13. Complete mind map
+
+\#chatgpt-mermaid-\_r_1p8\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_1p8\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1p8\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1p8\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_1p8\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_1p8\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_1p8\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_1p8\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_1p8\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_1p8\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1p8\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1p8\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_1p8\_ p{margin:0;}#chatgpt-mermaid-\_r_1p8\_ .edge{stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .section--1 rect,#chatgpt-mermaid-\_r_1p8\_ .section--1 path,#chatgpt-mermaid-\_r_1p8\_ .section--1 circle,#chatgpt-mermaid-\_r_1p8\_ .section--1 polygon,#chatgpt-mermaid-\_r_1p8\_ .section--1 path{fill:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ .section--1 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section--1 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon--1{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge--1{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth--1{stroke-width:17;}#chatgpt-mermaid-\_r_1p8\_ .section--1 line{stroke:rgb(246.0810055866, 232.5586592178, 212.4189944134);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 polygon{fill:rgb(31, 78, 148);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge--1{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-0 rect,#chatgpt-mermaid-\_r_1p8\_ .section-0 path,#chatgpt-mermaid-\_r_1p8\_ .section-0 circle,#chatgpt-mermaid-\_r_1p8\_ .section-0 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-0 path{fill:rgb(58, 132, 63);}#chatgpt-mermaid-\_r_1p8\_ .section-0 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-0 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-0{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-0{stroke:rgb(58, 132, 63);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-0{stroke-width:14;}#chatgpt-mermaid-\_r_1p8\_ .section-0 line{stroke:rgb(235.9210526316, 211.5789473684, 234.2763157894);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 polygon{fill:rgb(58, 132, 63);stroke:rgb(58, 132, 63);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-0{stroke:rgb(58, 132, 63);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-1 rect,#chatgpt-mermaid-\_r_1p8\_ .section-1 path,#chatgpt-mermaid-\_r_1p8\_ .section-1 circle,#chatgpt-mermaid-\_r_1p8\_ .section-1 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-1 path{fill:rgb(172, 79, 35);}#chatgpt-mermaid-\_r_1p8\_ .section-1 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-1 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-1{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-1{stroke:rgb(172, 79, 35);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-1{stroke-width:11;}#chatgpt-mermaid-\_r_1p8\_ .section-1 line{stroke:rgb(188.9420289856, 224.6594202899, 241.5579710145);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 polygon{fill:rgb(172, 79, 35);stroke:rgb(172, 79, 35);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-1{stroke:rgb(172, 79, 35);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-2 rect,#chatgpt-mermaid-\_r_1p8\_ .section-2 path,#chatgpt-mermaid-\_r_1p8\_ .section-2 circle,#chatgpt-mermaid-\_r_1p8\_ .section-2 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-2 path{fill:rgb(217, 163, 55);}#chatgpt-mermaid-\_r_1p8\_ .section-2 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-2 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-2{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-2{stroke:rgb(217, 163, 55);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-2{stroke-width:8;}#chatgpt-mermaid-\_r_1p8\_ .section-2 line{stroke:rgb(133.5714285715, 166.3571428572, 231.9285714286);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 polygon{fill:rgb(217, 163, 55);stroke:rgb(217, 163, 55);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-2{stroke:rgb(217, 163, 55);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-3 rect,#chatgpt-mermaid-\_r_1p8\_ .section-3 path,#chatgpt-mermaid-\_r_1p8\_ .section-3 circle,#chatgpt-mermaid-\_r_1p8\_ .section-3 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-3 path{fill:rgb(120, 73, 209);}#chatgpt-mermaid-\_r_1p8\_ .section-3 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-3 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-3{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-3{stroke:rgb(120, 73, 209);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-3{stroke-width:5;}#chatgpt-mermaid-\_r_1p8\_ .section-3 line{stroke:rgb(191.9802631579, 223.8289473684, 131.6710526314);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 polygon{fill:rgb(120, 73, 209);stroke:rgb(120, 73, 209);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-3{stroke:rgb(120, 73, 209);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-4 rect,#chatgpt-mermaid-\_r_1p8\_ .section-4 path,#chatgpt-mermaid-\_r_1p8\_ .section-4 circle,#chatgpt-mermaid-\_r_1p8\_ .section-4 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-4 path{fill:rgb(171, 79, 122);}#chatgpt-mermaid-\_r_1p8\_ .section-4 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-4 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-4{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-4{stroke:rgb(171, 79, 122);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-4{stroke-width:2;}#chatgpt-mermaid-\_r_1p8\_ .section-4 line{stroke:rgb(171.2100000001, 216.2900000001, 195.2200000001);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 polygon{fill:rgb(171, 79, 122);stroke:rgb(171, 79, 122);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-4{stroke:rgb(171, 79, 122);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-5 rect,#chatgpt-mermaid-\_r_1p8\_ .section-5 path,#chatgpt-mermaid-\_r_1p8\_ .section-5 circle,#chatgpt-mermaid-\_r_1p8\_ .section-5 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-5 path{fill:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ .section-5 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-5 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-5{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-5{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-5{stroke-width:-1;}#chatgpt-mermaid-\_r_1p8\_ .section-5 line{stroke:rgb(246.0810055866, 232.5586592178, 212.4189944134);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 polygon{fill:rgb(31, 78, 148);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-5{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-6 rect,#chatgpt-mermaid-\_r_1p8\_ .section-6 path,#chatgpt-mermaid-\_r_1p8\_ .section-6 circle,#chatgpt-mermaid-\_r_1p8\_ .section-6 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-6 path{fill:rgb(58, 132, 63);}#chatgpt-mermaid-\_r_1p8\_ .section-6 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-6 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-6{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-6{stroke:rgb(58, 132, 63);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-6{stroke-width:-4;}#chatgpt-mermaid-\_r_1p8\_ .section-6 line{stroke:rgb(235.9210526316, 211.5789473684, 234.2763157894);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 polygon{fill:rgb(58, 132, 63);stroke:rgb(58, 132, 63);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-6{stroke:rgb(58, 132, 63);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-7 rect,#chatgpt-mermaid-\_r_1p8\_ .section-7 path,#chatgpt-mermaid-\_r_1p8\_ .section-7 circle,#chatgpt-mermaid-\_r_1p8\_ .section-7 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-7 path{fill:rgb(172, 79, 35);}#chatgpt-mermaid-\_r_1p8\_ .section-7 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-7 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-7{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-7{stroke:rgb(172, 79, 35);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-7{stroke-width:-7;}#chatgpt-mermaid-\_r_1p8\_ .section-7 line{stroke:rgb(188.9420289856, 224.6594202899, 241.5579710145);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 polygon{fill:rgb(172, 79, 35);stroke:rgb(172, 79, 35);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-7{stroke:rgb(172, 79, 35);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-8 rect,#chatgpt-mermaid-\_r_1p8\_ .section-8 path,#chatgpt-mermaid-\_r_1p8\_ .section-8 circle,#chatgpt-mermaid-\_r_1p8\_ .section-8 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-8 path{fill:rgb(217, 163, 55);}#chatgpt-mermaid-\_r_1p8\_ .section-8 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-8 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-8{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-8{stroke:rgb(217, 163, 55);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-8{stroke-width:-10;}#chatgpt-mermaid-\_r_1p8\_ .section-8 line{stroke:rgb(133.5714285715, 166.3571428572, 231.9285714286);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 polygon{fill:rgb(217, 163, 55);stroke:rgb(217, 163, 55);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-8{stroke:rgb(217, 163, 55);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-9 rect,#chatgpt-mermaid-\_r_1p8\_ .section-9 path,#chatgpt-mermaid-\_r_1p8\_ .section-9 circle,#chatgpt-mermaid-\_r_1p8\_ .section-9 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-9 path{fill:rgb(120, 73, 209);}#chatgpt-mermaid-\_r_1p8\_ .section-9 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-9 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-9{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-9{stroke:rgb(120, 73, 209);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-9{stroke-width:-13;}#chatgpt-mermaid-\_r_1p8\_ .section-9 line{stroke:rgb(191.9802631579, 223.8289473684, 131.6710526314);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 polygon{fill:rgb(120, 73, 209);stroke:rgb(120, 73, 209);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-9{stroke:rgb(120, 73, 209);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-10 rect,#chatgpt-mermaid-\_r_1p8\_ .section-10 path,#chatgpt-mermaid-\_r_1p8\_ .section-10 circle,#chatgpt-mermaid-\_r_1p8\_ .section-10 polygon,#chatgpt-mermaid-\_r_1p8\_ .section-10 path{fill:rgb(171, 79, 122);}#chatgpt-mermaid-\_r_1p8\_ .section-10 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-10 span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .node-icon-10{font-size:40px;color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-edge-10{stroke:rgb(171, 79, 122);}#chatgpt-mermaid-\_r_1p8\_ .edge-depth-10{stroke-width:-16;}#chatgpt-mermaid-\_r_1p8\_ .section-10 line{stroke:rgb(171.2100000001, 216.2900000001, 195.2200000001);stroke-width:3;}#chatgpt-mermaid-\_r_1p8\_ .disabled,#chatgpt-mermaid-\_r_1p8\_ .disabled circle,#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:lightgray;}#chatgpt-mermaid-\_r_1p8\_ .disabled text{fill:#efefef;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 polygon{fill:rgb(171, 79, 122);stroke:rgb(171, 79, 122);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].section-edge-10{stroke:rgb(171, 79, 122);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-root rect,#chatgpt-mermaid-\_r_1p8\_ .section-root path,#chatgpt-mermaid-\_r_1p8\_ .section-root circle,#chatgpt-mermaid-\_r_1p8\_ .section-root polygon{fill:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ .section-root text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .section-root span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ .icon-container{height:100%;display:flex;justify-content:center;align-items:center;}#chatgpt-mermaid-\_r_1p8\_ .edge{fill:none;}#chatgpt-mermaid-\_r_1p8\_ .mindmap-node-label{dy:1em;alignment-baseline:middle;text-anchor:middle;dominant-baseline:middle;text-align:center;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-root rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-root path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-root circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-root polygon{fill:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-root .text-inner-tspan{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section--1 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section--1 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-0 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-0 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-1 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-1 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-2 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-2 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-3 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-3 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-4 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-4 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-5 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-5 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-6 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-6 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-7 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-7 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-8 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-8 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-9 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-9 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 path,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 circle,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].mindmap-node.section-10 polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);fill:rgb(9, 23, 44);}#chatgpt-mermaid-\_r_1p8\_ .section-10 line{stroke-width:0;}#chatgpt-mermaid-\_r_1p8\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_1p8\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1p8\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_1p8\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1p8\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Java Exception HandlingHierarchyThrowableExceptionCheckedRuntimeExceptionErrorKeywordstrycatchfinallythrowthrowsHandlingMultiple catchNested tryPropagationAdvancedCustom exceptionsTry-with-resourcesBest practicesSpecific catchesUseful messagesResource cleanup
+
+## 14. Quick revision sheet
+
+## Remember these before an interview
+
+Checked exception
+
+Must be caught or declared when required by the compiler.
+
+Unchecked exception
+
+A `RuntimeException` subclass; catching or declaring it is not mandatory.
+
+`throw`
+
+Throws an exception object.
+
+`throws`
+
+Declares exception types in a method signature.
+
+`finally`
+
+Normally executes during cleanup when leaving a `try`/`catch` construct.
+
+Try-with-resources
+
+Automatically closes supported resources.
