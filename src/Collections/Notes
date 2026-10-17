@@ -1,0 +1,87 @@
+Complete learning roadmap
+Recommended order for learning from basics to advanced.
+
+
+
+
+1. Collections fundamentals
+[ ] What is the Collections Framework?
+[ ] Collection vs Collections
+[ ] Interfaces and implementation classes
+[ ] Generics and type safety
+
+
+2. List
+[ ] ArrayList
+[ ] LinkedList
+[ ] Vector and Stack
+[ ] Methods, iteration and CRUD operations
+[ ] ArrayList vs LinkedList
+[ ] Time complexity
+
+
+3. Set
+[ ] HashSet
+[ ] LinkedHashSet
+[ ] TreeSet
+[ ] Duplicate removal
+[ ] equals() and hashCode()
+[ ] HashSet vs TreeSet
+
+
+4. Queue and Deque
+[ ] Queue interface
+[ ] PriorityQueue
+[ ] ArrayDeque
+[ ] Deque and Stack alternatives
+
+
+5. Map
+[ ] HashMap
+[ ] LinkedHashMap
+[ ] TreeMap
+[ ] Hashtable
+[ ] put(), get(), remove(), containsKey()
+[ ] HashMap internals
+[ ] HashMap vs Hashtable
+
+
+6. Advanced concepts
+[ ] Iterator and ListIterator
+[ ] Comparable and Comparator
+[ ] Sorting collections
+[ ] Streams with collections
+[ ] ConcurrentHashMap
+[ ] Fail-fast vs fail-safe iterators
+
+
+
+Common implementations to remember
+
+Interface	Implementation	Main characteristic
+List	    ArrayList	    Fast indexed access
+List	    LinkedList  	Linked-node structure
+Set     	HashSet	        Unique elements; no guaranteed order
+Set	        LinkedHashSet	Unique elements; insertion order
+Set	        TreeSet     	Unique elements; sorted order
+Queue	    PriorityQueue	Elements ordered by priority
+Map	        HashMap	        Key-value storage; no guaranteed iteration order
+Map	        TreeMap     	Keys sorted by natural order or comparator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
