@@ -2,6 +2,7 @@ package Collections.List;
 
 import java.util.ArrayList;
 
+
 public class ArrayvsArrayList {
 
     public static void main(String[] args) {
@@ -16,7 +17,7 @@ public class ArrayvsArrayList {
         list.add(50);
 
 
-        System.out.println(arr);
+        System.out.println(arr.toString());
 
         System.out.println("ArrayList before: "+list);
 

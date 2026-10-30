@@ -18,7 +18,9 @@ public class EmployeeRecordManager {
 
         emp.remove("Neha");
 
-        emp.contains("Priya");
+        boolean found =  emp.contains("Priya");
+
+        System.out.println("Priya found: "+found);
         System.out.println("Update Emp data: "+emp);
 
     }
