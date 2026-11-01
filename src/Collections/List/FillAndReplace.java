@@ -1,7 +1,6 @@
 package Collections.List;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 public class FillAndReplace {
@@ -26,7 +25,7 @@ public class FillAndReplace {
         Collections.fill(marks, 0);
         System.out.println("After Fill: "+marks);
 
-//        Adding the original marks again to a new ArrayList
+        // Restoring original marks from the backup list
         marks.clear();
         marks.addAll(backup);
         System.out.println("Comming to Original values: "+marks);
@@ -36,6 +35,15 @@ public class FillAndReplace {
 
         Collections.swap(marks,1,4);
         System.out.println("After Swap: "+marks);
+
+//        Search for a number using Collections.binarySearch()
+//        first sort the numbers
+
+        Collections.sort(marks);
+
+        int index = Collections.binarySearch(marks, 95);
+        System.out.println("Search 95: "+index);
+
 
     }
 }
